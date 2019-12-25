@@ -1,0 +1,15 @@
+## Interface: 11302
+## Title: BGHelper
+## Notes: BattleGround Helper
+## Author: YuntaoCao
+## Version: 1.0
+## SavedVariables: BGHelperDB
+
+embeds.xml
+
+BGDataBase.lua
+BattleInfo.lua
+PlayerInfo.lua
+BGMainWindow.lua
+BGHelper.lua
+BTLogParser.lua
