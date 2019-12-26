@@ -1,9 +1,44 @@
 
-
-
-
-
 BattleInfo = {}
+
+BattleManager = {
+    in_battle = false
+}
+
+function CreatEnumTable(tbl, index)
+    local enumtbl = {}
+    local enumindex = index or 0
+    for i, v in ipairs(tbl) do
+        enumtbl[v] = enumindex + i
+    end
+    return enumtbl
+end
+
+BattleEventTp = {
+    "NORMAL_KILL",
+    "FIRST_BLOOD",
+    "MULTI_KILL",
+    "CONTINUE_KILL"
+}
+
+BattleEventType = CreatEnumTable(BattleEventTp)
+
+BattleEvent = {
+
+}
+
+function BattleEvent:new()
+    local o = {
+        type = nil,
+        src = "",
+        dst = "",
+        value = 0
+    }
+
+    setmetatable(o, self)
+    self.__index = self
+    return o
+end
 
 function BattleInfo:new()
     return BattleInfo:reset_data()
@@ -96,21 +131,55 @@ function BattleInfo:AddGetHeal(uid,value)
     self.all_get_heal = self.all_get_heal + value
 end
 
-function BattleInfo:AddKillNum(uid,value)
+function BattleInfo:AddKillNum(uid,dst_name)
     local p = self.players[uid]
     if(p) then
-        p.kill_num = p.kill_num + value
+        p:AddKill()
     end
-    self.all_kill = self.all_kill + value
+    self.all_kill = self.all_kill + 1
+    if(self.all_kill == 1)then
+        local btevent = BattleEvent:new()
+        btevent.type = BattleEventType.FIRST_BLOOD
+        btevent.src = p.name
+        self.event_callback(btevent)
+    end
+
+    local normal_kill_event = BattleEvent:new()
+    normal_kill_event.type = BattleEventType.NORMAL_KILL
+    normal_kill_event.src = p.name
+    normal_kill_event.dst = dst_name
+    self.event_callback(normal_kill_event)
+
+
+    if(p.continue_kill_num >= 2)then
+        local btevent = BattleEvent:new()
+        btevent.type = BattleEventType.CONTINUE_KILL
+        btevent.src = p.name
+        btevent.value = p.continue_kill_num
+        self.event_callback(btevent)
+    end
+
+    if(p.multi_kill_num >= 3)then
+        local btevent = BattleEvent:new()
+        btevent.type = BattleEventType.MULTI_KILL
+        btevent.src = p.name
+        btevent.value = p.multi_kill_num
+        self.event_callback(btevent)
+    end
+    
 end
 
 
-function BattleInfo:AddDeathNum(uid,value)
+function BattleInfo:AddDeathNum(uid)
     local p = self.players[uid]
     if(p) then
-        p.death_num = p.death_num + value
+        p:AddDeath()
     end
-    self.all_death = self.all_death + value
+    self.all_death = self.all_death + 1
+end
+
+function BattleInfo:RegisterBattleEventCallBack(callback)
+    self.event_callback = callback
 end
 
 function BattleInfo:ToString()
@@ -123,9 +192,6 @@ function BattleInfo:ToString()
             self.start_time,self.end_time,self.time_long,self.place,self.all_dmage,self.all_taken_dmage,self.all_heal,self.all_get_heal,self.all_kill,self.all_death,player_str)
 end
 
-BattleManager = {
-    in_battle = false
-}
 
 
 function BattleManager:GetCurrentBattle()

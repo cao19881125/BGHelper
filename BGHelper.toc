@@ -10,6 +10,7 @@ embeds.xml
 BGDataBase.lua
 BattleInfo.lua
 PlayerInfo.lua
+BGSoundPlayer.lua
 BGMainWindow.lua
 BGHelper.lua
 BTLogParser.lua

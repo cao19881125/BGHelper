@@ -4,6 +4,8 @@ local BGHelper = _G.BGHelper
 local BattleManager = _G.BattleManager
 local BGDb = _G.BGDataBase
 local BGMainWindow = _G.BGMainWindow
+local BGSoundPlayer = _G.BGSoundPlayer
+local BattleEventType = _G.BattleEventType
 
 local CreateFrame = CreateFrame
 
@@ -78,13 +80,26 @@ BGHelper.consoleOptions = {
                 --XpTimer.MainWindow.frame:SetPoint("BOTTOMRIGHT",-13,24)
 			end,
 			dialogHidden = true
+		},
+		["sd"] = {
+			order = 15,
+			name = "sd",
+			desc = "Sount test",
+			type = 'execute',
+			func = function()
+				BGHelper:SoundTest()
+			end,
+			dialogHidden = true
 		}
 	}
 }
+
 function BGHelper:OnUpdate()
 	if(not BattleManager.in_battle)then
 		return
 	end
+
+	BGSoundPlayer:PlayNextSound()
 
 	local current_time = GetTime()
 
@@ -141,8 +156,27 @@ function BGHelper:InitData()
 
 end
 
+function BGHelper:SoundTest()
+	local current_battle = BattleManager:GetCurrentBattle()
+	local my_guid = UnitGUID("player")
+	current_battle:AddKillNum(my_guid,"testname")
+end
+
+function BGHelper:BattleEventCallback(event)
+	if(event.type == BattleEventType.FIRST_BLOOD)then
+		BGSoundPlayer:AddSoundToQueue(BattleEventType.FIRST_BLOOD,0)
+	elseif(event.type == BattleEventType.MULTI_KILL or event.type == BattleEventType.CONTINUE_KILL)	then
+		BGSoundPlayer:AddSoundToQueue(event.type,event.value)
+	end
+end
+
 function BGHelper:Start()
 	BattleManager:StartANewBattle()
+	local current_battle = BattleManager:GetCurrentBattle()
+	local my_guid = UnitGUID("player")
+    local my_name = UnitName("player")
+	current_battle:AddPlayer(my_guid,my_name)
+	current_battle:RegisterBattleEventCallBack(function(event) return BGHelper:BattleEventCallback(event) end)
 	self.last_update_time = GetTime()
 end
 
@@ -155,11 +189,11 @@ function BGHelper:Stop()
 end
 
 function BGHelper:PLAYER_REGEN_DISABLED()
-	self:Start()
+	--self:Start()
 end
 
 function BGHelper:PLAYER_REGEN_ENABLED()
-	self:Stop()
+	--self:Stop()
 end
 
 function BGHelper:ZONE_CHANGED_NEW_AREA()

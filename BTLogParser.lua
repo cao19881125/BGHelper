@@ -27,16 +27,18 @@ ParseResultType = CreatEnumTable(ParseResultType)
 ParseResult = {
     player_id = 0,
     player_name = "",
+    dest_name = "",
     type = ParseResultType.NONE,
     value = 0
 }
 
-function ParseResult:new(o,pid,pname,type,value)
+function ParseResult:new(o,pid,pname,dest_name,type,value)
     o = o or {}
     setmetatable(o, self)
     self.__index = self
     self.player_id = pid
     self.player_name = pname
+    self.dest_name = dest_name
     self.type = type or ParseResultType.NONE
     self.value = value or 0
     return o
@@ -51,7 +53,6 @@ function BTLogParser:HandlParseResult(result)
             current_battle:AddPlayer(result.player_id,result.player_name)
     end
 
-    DEFAULT_CHAT_FRAME:AddMessage(result.type)
     if(result.type == ParseResultType.DAMAGE) then
         current_battle:AddDmageData(result.player_id,result.value)
     elseif(result.type == ParseResultType.HEAL) then
@@ -64,9 +65,9 @@ function BTLogParser:HandlParseResult(result)
         current_battle:AddHeal(result.player_id,result.value)
         current_battle:AddGetHeal(result.player_id,result.value)
     elseif(result.type == ParseResultType.KILL) then
-        current_battle:AddKillNum(result.player_id,result.value)
+        current_battle:AddKillNum(result.player_id,result.dest_name)
     elseif(result.type == ParseResultType.DEAD) then
-        current_battle:AddDeathNum(result.player_id,result.value)
+        current_battle:AddDeathNum(result.player_id)
     end
 end
 
@@ -119,7 +120,7 @@ function BTLogParser:ParseLog(timestamp, eventtype, hideCaster, srcGUID, srcName
 
     local result_data = {}
 
-    local parse_result = ParseResult:new(nil,my_guid,my_name)
+    local parse_result = ParseResult:new(nil,my_guid,my_name,dstName)
 
     local has_overkill = false
     if(eventtype == "SWING_DAMAGE")then
