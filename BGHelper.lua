@@ -133,6 +133,9 @@ function BGHelper:OnInitialize()
 	BGDb:Init()
 	LibStub("AceConfig-3.0"):RegisterOptionsTable("BGHelper Blizz", BGHelper.consoleOptions,{"BGHepler","BGH"})
 	BGHelper.MainWindow = BGMainWindow:CreateMainWindow()
+	BGHelper.MainWindow.frame["MoveFinished"] = BGHelper.OnMainWindowMoved
+	local point,x,y = BGDataBase:GetPosition()
+	BGHelper.MainWindow.frame:SetPoint(point,x,y)
 	BGHelper.MainWindow:Show()
 	BGHelper.events:SetScript("OnUpdate",BGHelper.OnUpdate)
 
@@ -156,6 +159,11 @@ function BGHelper:InitData()
 
 end
 
+function BGHelper:OnMainWindowMoved()
+	local point, relativeTo, relativePoint, xOfs, yOfs = BGHelper.MainWindow.frame:GetPoint()
+	BGDataBase:SavePosition(point,xOfs,yOfs)
+end
+
 function BGHelper:SoundTest()
 	local current_battle = BattleManager:GetCurrentBattle()
 	local my_guid = UnitGUID("player")
@@ -170,8 +178,8 @@ function BGHelper:BattleEventCallback(event)
 	end
 end
 
-function BGHelper:Start()
-	BattleManager:StartANewBattle()
+function BGHelper:Start(bgid)
+	BattleManager:StartANewBattle(bgid)
 	local current_battle = BattleManager:GetCurrentBattle()
 	local my_guid = UnitGUID("player")
     local my_name = UnitName("player")
@@ -201,12 +209,15 @@ function BGHelper:ZONE_CHANGED_NEW_AREA()
 	local CurrentZoneId = GetCurrentMapAreaID()
 
 
-	if(CurrentZoneId == 443)then
-		-- Zone_WarsongGulch  战歌峡谷
-		self:Start()
+	if(CurrentZoneId == 443 or CurrentZoneId == 401 or CurrentZoneId == 461)then
+		-- 443 Zone_WarsongGulch  战歌峡谷
+		self:Start(2)
 	elseif(CurrentZoneId == 401)then
-		-- Zone_AlteracValley 奥山
-		self:Start()
+		-- 401 Zone_AlteracValley 奥山
+		self:Start(1)
+	elseif(CurrentZoneId == 461)then
+		-- 461 Zone_ArathiBasin 阿拉希盆地
+		self:Start(3)
 	else
 		self:Stop()
 	end

@@ -21,8 +21,31 @@ function BGMainWindow:CreateMainWindow()
     frame:SetLayout("Flow")
     --frame:SetTitle("战场统计")
     --frame:SetStatusText("停止")
-    frame:SetWidth(50*LENGTH_SCAL)
+    frame:SetWidth(36*LENGTH_SCAL)
     frame:SetHeight(8*LENGTH_SCAL)
+
+
+    -- status label
+    local status_group = AceGUI:Create("SimpleGroup")
+    status_group:SetLayout("List")
+    status_group:SetWidth(8*LENGTH_SCAL)
+    status_group:SetHeight(8*LENGTH_SCAL)
+    frame:AddChild(status_group)
+
+    local status_icon = AceGUI:Create("Label2")
+    status_icon:SetText("战斗停止")
+    status_icon:SetWidth(8*LENGTH_SCAL)
+    status_icon:SetHeight(4*LENGTH_SCAL)
+    status_group:AddChild(status_icon)
+
+    self:insert_space(status_group)
+
+    local status_time_label = AceGUI:Create("Label2")
+    status_time_label:SetText("14:50")
+    status_time_label:SetWidth(8*LENGTH_SCAL)
+    status_time_label:SetHeight(3*LENGTH_SCAL)
+    self:ChangeFontSize(status_time_label,LABEL_SIZE)
+    status_group:AddChild(status_time_label)
 
     -- kill death
 
@@ -100,53 +123,53 @@ function BGMainWindow:CreateMainWindow()
 
     -- taken_dmage
 
-    local taken_dmage_group = AceGUI:Create("SimpleGroup")
-    taken_dmage_group:SetLayout("List")
-    taken_dmage_group:SetWidth(8*LENGTH_SCAL)
-    taken_dmage_group:SetHeight(8*LENGTH_SCAL)
-    frame:AddChild(taken_dmage_group)
-
-    local taken_dmage_label = AceGUI:Create("Label2")
-    taken_dmage_label:SetText("承伤")
-    taken_dmage_label:SetWidth(8*LENGTH_SCAL)
-    taken_dmage_label:SetHeight(3*LENGTH_SCAL)
-    self:ChangeFontSize(taken_dmage_label,LABEL_SIZE)
-    taken_dmage_group:AddChild(taken_dmage_label)
-
-    self:insert_space(taken_dmage_group)
-
-    local taken_dmage__data_label = AceGUI:Create("Label2")
-    taken_dmage__data_label:SetText("15040")
-    taken_dmage__data_label:SetWidth(8*LENGTH_SCAL)
-    taken_dmage__data_label:SetHeight(3*LENGTH_SCAL)
-    self:ChangeFontSize(taken_dmage__data_label,LABEL_SIZE)
-    taken_dmage_group:AddChild(taken_dmage__data_label)
-    self.taken_dmage__data_label = taken_dmage__data_label
+    --local taken_dmage_group = AceGUI:Create("SimpleGroup")
+    --taken_dmage_group:SetLayout("List")
+    --taken_dmage_group:SetWidth(8*LENGTH_SCAL)
+    --taken_dmage_group:SetHeight(8*LENGTH_SCAL)
+    --frame:AddChild(taken_dmage_group)
+    --
+    --local taken_dmage_label = AceGUI:Create("Label2")
+    --taken_dmage_label:SetText("承伤")
+    --taken_dmage_label:SetWidth(8*LENGTH_SCAL)
+    --taken_dmage_label:SetHeight(3*LENGTH_SCAL)
+    --self:ChangeFontSize(taken_dmage_label,LABEL_SIZE)
+    --taken_dmage_group:AddChild(taken_dmage_label)
+    --
+    --self:insert_space(taken_dmage_group)
+    --
+    --local taken_dmage__data_label = AceGUI:Create("Label2")
+    --taken_dmage__data_label:SetText("15040")
+    --taken_dmage__data_label:SetWidth(8*LENGTH_SCAL)
+    --taken_dmage__data_label:SetHeight(3*LENGTH_SCAL)
+    --self:ChangeFontSize(taken_dmage__data_label,LABEL_SIZE)
+    --taken_dmage_group:AddChild(taken_dmage__data_label)
+    --self.taken_dmage__data_label = taken_dmage__data_label
 
     -- get_heal
 
-    local get_heal_group = AceGUI:Create("SimpleGroup")
-    get_heal_group:SetLayout("List")
-    get_heal_group:SetWidth(8*LENGTH_SCAL)
-    get_heal_group:SetHeight(8*LENGTH_SCAL)
-    frame:AddChild(get_heal_group)
-
-    local get_heal_label = AceGUI:Create("Label2")
-    get_heal_label:SetText("被治疗")
-    get_heal_label:SetWidth(8*LENGTH_SCAL)
-    get_heal_label:SetHeight(3*LENGTH_SCAL)
-    self:ChangeFontSize(get_heal_label,LABEL_SIZE)
-    get_heal_group:AddChild(get_heal_label)
-
-    self:insert_space(get_heal_group)
-
-    local get_heal__data_label = AceGUI:Create("Label2")
-    get_heal__data_label:SetText("15040")
-    get_heal__data_label:SetWidth(8*LENGTH_SCAL)
-    get_heal__data_label:SetHeight(3*LENGTH_SCAL)
-    self:ChangeFontSize(get_heal__data_label,LABEL_SIZE)
-    get_heal_group:AddChild(get_heal__data_label)
-    self.get_heal__data_label = get_heal__data_label
+    --local get_heal_group = AceGUI:Create("SimpleGroup")
+    --get_heal_group:SetLayout("List")
+    --get_heal_group:SetWidth(8*LENGTH_SCAL)
+    --get_heal_group:SetHeight(8*LENGTH_SCAL)
+    --frame:AddChild(get_heal_group)
+    --
+    --local get_heal_label = AceGUI:Create("Label2")
+    --get_heal_label:SetText("被治疗")
+    --get_heal_label:SetWidth(8*LENGTH_SCAL)
+    --get_heal_label:SetHeight(3*LENGTH_SCAL)
+    --self:ChangeFontSize(get_heal_label,LABEL_SIZE)
+    --get_heal_group:AddChild(get_heal_label)
+    --
+    --self:insert_space(get_heal_group)
+    --
+    --local get_heal__data_label = AceGUI:Create("Label2")
+    --get_heal__data_label:SetText("15040")
+    --get_heal__data_label:SetWidth(8*LENGTH_SCAL)
+    --get_heal__data_label:SetHeight(3*LENGTH_SCAL)
+    --self:ChangeFontSize(get_heal__data_label,LABEL_SIZE)
+    --get_heal_group:AddChild(get_heal__data_label)
+    --self.get_heal__data_label = get_heal__data_label
 
     return frame
 end
@@ -158,4 +181,3 @@ function BGMainWindow:UpdateMainWindow(data)
     self.taken_dmage__data_label:SetText(data["taken_dmage"])
     self.get_heal__data_label:SetText(data["get_heal"])
 end
-

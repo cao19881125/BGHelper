@@ -46,6 +46,7 @@ end
 
 function BattleInfo:reset_data()
     local o = {
+        bgid = 0, -- 1:奥山 2:战歌 3:阿拉希
         start_time = "",
         end_time = "",
         time_long = 0,
@@ -166,7 +167,7 @@ function BattleInfo:AddKillNum(uid,dst_name)
         btevent.value = p.multi_kill_num
         self.event_callback(btevent)
     end
-    
+
 end
 
 
@@ -201,9 +202,10 @@ function BattleManager:GetCurrentBattle()
     return self.battle
 end
 
-function BattleManager:StartANewBattle()
+function BattleManager:StartANewBattle(bgid)
     self.battle = BattleInfo:new()
     self.battle:start()
+    self.bgid = bgid
     self.in_battle = true
 
 end

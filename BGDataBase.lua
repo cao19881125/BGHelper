@@ -31,3 +31,13 @@ end
 function BGDataBase:GetHistoryData()
     return self.db.profile.History
 end
+
+function BGDataBase:SavePosition(point,xOfs,yOfs)
+    self.db.profile.MainWindow.Position.point = point
+    self.db.profile.MainWindow.Position.x = xOfs
+    self.db.profile.MainWindow.Position.y = yOfs
+end
+
+function BGDataBase:GetPosition()
+    return self.db.profile.MainWindow.Position.point,self.db.profile.MainWindow.Position.x,self.db.profile.MainWindow.Position.y
+end
