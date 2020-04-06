@@ -86,14 +86,18 @@ function BGHelper:COMBAT_LOG_EVENT_UNFILTERED()
 end
 
 function BGHelper:PLAYER_DEAD()
+    DEFAULT_CHAT_FRAME:AddMessage("PLAYER_DEAD")
     if(not BattleManager.in_battle)then
         return
     end
-    local parse_result = ParseResult:new(nil)
+    local my_guid = UnitGUID("player")
+    local my_name = UnitName("player")
+    DEFAULT_CHAT_FRAME:AddMessage("PLAYER_DEAD 2")
+    local parse_result = ParseResult:new(nil,my_guid,my_name)
     parse_result.type = ParseResultType.DEAD
     parse_result.value = 1
 
-    self:HandlParseResult(parse_result)
+    BTLogParser:HandlParseResult(parse_result)
 end
 
 function BTLogParser:ParseLog(timestamp, eventtype, hideCaster, srcGUID, srcName, srcFlags, srcRaidFlags, dstGUID, dstName, dstFlags, dstRaidFlags, ...)

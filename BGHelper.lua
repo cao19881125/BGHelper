@@ -6,6 +6,7 @@ local BGDb = _G.BGDataBase
 local BGMainWindow = _G.BGMainWindow
 local BGSoundPlayer = _G.BGSoundPlayer
 local BattleEventType = _G.BattleEventType
+local GetCurrentMapAreaID = _G.GetCurrentMapAreaID
 
 local CreateFrame = CreateFrame
 
@@ -19,6 +20,27 @@ BGHelper.events:SetScript("OnEvent", function(self, event, ...)
 	BGHelper[event](BGHelper, ...)
 end)
 
+
+BattleZoneHelper = {}
+BattleZoneHelper.MAPID_ALTERAC = 1459	--奥特兰克山谷
+BattleZoneHelper.MAPNAME_ALTERAC = C_Map.GetMapInfo(BattleZoneHelper.MAPID_ALTERAC).name
+
+BattleZoneHelper.MAPID_WARSONG = 1460	--战歌峡谷
+BattleZoneHelper.MAPNAME_WARSONG = C_Map.GetMapInfo(BattleZoneHelper.MAPID_WARSONG).name
+
+BattleZoneHelper.MAPID_ARATHI = 1461	--阿拉希盆地
+BattleZoneHelper.MAPNAME_ARATHI = C_Map.GetMapInfo(BattleZoneHelper.MAPID_ARATHI).name
+
+-- ( 1 for Alterac Valley, 2 for Warsong Gulch, 3 for Arathi Basin,
+BattleZoneHelper.BGID_ALTERAC = 1
+BattleZoneHelper.BGID_WARSONG = 2
+BattleZoneHelper.BGID_ARATHI = 3
+
+BattleZoneHelper.MAPNAME_TO_ID = {
+	[BattleZoneHelper.MAPNAME_ALTERAC] = BattleZoneHelper.BGID_ALTERAC,
+	[BattleZoneHelper.MAPNAME_WARSONG] = BattleZoneHelper.BGID_WARSONG,
+	[BattleZoneHelper.MAPNAME_ARATHI] = BattleZoneHelper.BGID_ARATHI,
+}
 
 BGHelper.consoleOptions = {
 	name = "BGHelper",
@@ -129,6 +151,15 @@ function BGHelper:OnUpdate()
 	BGMainWindow:UpdateMainWindow(updata_data)
 end
 
+local function PlayerFaction()
+    local factionGroup = UnitFactionGroup("player");
+    if ( factionGroup == "Alliance" ) then
+        return FACTION_ALLIANCE
+    else
+        return FACTION_HORDE
+    end
+end
+
 function BGHelper:OnInitialize()
 	BGDb:Init()
 	LibStub("AceConfig-3.0"):RegisterOptionsTable("BGHelper Blizz", BGHelper.consoleOptions,{"BGHepler","BGH"})
@@ -138,7 +169,6 @@ function BGHelper:OnInitialize()
 	BGHelper.MainWindow.frame:SetPoint(point,x,y)
 	BGHelper.MainWindow:Show()
 	BGHelper.events:SetScript("OnUpdate",BGHelper.OnUpdate)
-
 end
 
 function BGHelper:OnEnable()
@@ -147,6 +177,7 @@ function BGHelper:OnEnable()
 	BGHelper.events:RegisterEvent("PLAYER_REGEN_DISABLED")
 	BGHelper.events:RegisterEvent("PLAYER_REGEN_ENABLED")
 	BGHelper.events:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+	BGHelper.events:RegisterEvent("UPDATE_BATTLEFIELD_STATUS")
 
 
 end
@@ -186,39 +217,74 @@ function BGHelper:Start(bgid)
 	current_battle:AddPlayer(my_guid,my_name)
 	current_battle:RegisterBattleEventCallBack(function(event) return BGHelper:BattleEventCallback(event) end)
 	self.last_update_time = GetTime()
+	BGMainWindow:UpdateBattleState(true)
 end
 
-function BGHelper:Stop()
-	BattleManager:StopCurrentBattle()
+function BGHelper:Stop(win)
+	BattleManager:StopCurrentBattle(win)
 	local current_battle = BattleManager:GetCurrentBattle()
 	BGDb:SaveOneBattleInfo(current_battle)
 	local result_str = current_battle:ToString()
 	DEFAULT_CHAT_FRAME:AddMessage(result_str)
+	BGMainWindow:UpdateBattleState(false)
 end
 
 function BGHelper:PLAYER_REGEN_DISABLED()
-	--self:Start()
+	--self:Start(3)
 end
 
 function BGHelper:PLAYER_REGEN_ENABLED()
-	--self:Stop()
+	--self:Stop(true)
+end
+
+
+
+function BGHelper:UPDATE_BATTLEFIELD_STATUS()
+    DEFAULT_CHAT_FRAME:AddMessage("UPDATE_BATTLEFIELD_STATUS")
+    local battlefieldWinner = GetBattlefieldWinner()
+	DEFAULT_CHAT_FRAME:AddMessage("UPDATE_BATTLEFIELD_STATUS 2")
+    if (battlefieldWinner) then
+		DEFAULT_CHAT_FRAME:AddMessage("UPDATE_BATTLEFIELD_STATUS 3")
+		local win = battlefieldWinner == PlayerFaction()
+		DEFAULT_CHAT_FRAME:AddMessage("UPDATE_BATTLEFIELD_STATUS 4")
+		self:Stop(win)
+		DEFAULT_CHAT_FRAME:AddMessage("UPDATE_BATTLEFIELD_STATUS 5")
+		return
+    end
+
+	if (BattleManager.in_battle) then
+		return
+	end
+
+    for i=1, MAX_BATTLEFIELD_QUEUES do
+        local status, mapName, instanceID = GetBattlefieldStatus(i);
+
+        local str = "GetBattlefieldStatus:"..i .." " .. status .. " " .. mapName .. " " .. instanceID
+		DEFAULT_CHAT_FRAME:AddMessage(str)
+
+		if status == "active" then
+			self:Start(BattleZoneHelper.MAPNAME_TO_ID[mapName])
+			return
+        end
+    end
+
+
 end
 
 function BGHelper:ZONE_CHANGED_NEW_AREA()
-	SetMapToCurrentZone()
-	local CurrentZoneId = GetCurrentMapAreaID()
 
 
-	if(CurrentZoneId == 443 or CurrentZoneId == 401 or CurrentZoneId == 461)then
+	local CurrentZone = GetRealZoneText()
+	if(CurrentZone == BattleZoneHelper.MAPNAME_WARSONG)then
 		-- 443 Zone_WarsongGulch  战歌峡谷
-		self:Start(2)
-	elseif(CurrentZoneId == 401)then
+	elseif(CurrentZone == BattleZoneHelper.MAPNAME_ALTERAC)then
 		-- 401 Zone_AlteracValley 奥山
-		self:Start(1)
-	elseif(CurrentZoneId == 461)then
+	elseif(CurrentZone == BattleZoneHelper.MAPNAME_ARATHI)then
 		-- 461 Zone_ArathiBasin 阿拉希盆地
-		self:Start(3)
 	else
-		self:Stop()
+		if (BattleManager.in_battle) then
+			self:Stop(false)
+		end
+
 	end
 end

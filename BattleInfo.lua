@@ -57,7 +57,8 @@ function BattleInfo:reset_data()
         all_heal = 0,
         all_get_heal = 0,
         all_kill = 0,
-        all_death = 0
+        all_death = 0,
+        win = false
     }
     setmetatable(o, self)
     self.__index = self
@@ -210,10 +211,11 @@ function BattleManager:StartANewBattle(bgid)
 
 end
 
-function BattleManager:StopCurrentBattle()
+function BattleManager:StopCurrentBattle(win)
     if(not self.battle)then
         return nil
     end
+    self.battle.win = win
     self.battle:stop()
     self.in_battle = false
 end

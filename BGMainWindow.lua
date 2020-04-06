@@ -36,16 +36,19 @@ function BGMainWindow:CreateMainWindow()
     status_icon:SetText("战斗停止")
     status_icon:SetWidth(8*LENGTH_SCAL)
     status_icon:SetHeight(4*LENGTH_SCAL)
+    self:ChangeFontSize(status_icon,LABEL_SIZE)
     status_group:AddChild(status_icon)
+    self.status_icon = status_icon
 
     self:insert_space(status_group)
 
     local status_time_label = AceGUI:Create("Label2")
-    status_time_label:SetText("14:50")
+    status_time_label:SetText("00:00")
     status_time_label:SetWidth(8*LENGTH_SCAL)
     status_time_label:SetHeight(3*LENGTH_SCAL)
     self:ChangeFontSize(status_time_label,LABEL_SIZE)
     status_group:AddChild(status_time_label)
+    self.status_time_label = status_time_label
 
     -- kill death
 
@@ -65,7 +68,7 @@ function BGMainWindow:CreateMainWindow()
     self:insert_space(KD_group)
 
     local self_kd_label = AceGUI:Create("Label2")
-    self_kd_label:SetText("100/150")
+    self_kd_label:SetText("0/0")
     self_kd_label:SetWidth(8*LENGTH_SCAL)
     self_kd_label:SetHeight(3*LENGTH_SCAL)
     self:ChangeFontSize(self_kd_label,LABEL_SIZE)
@@ -83,14 +86,14 @@ function BGMainWindow:CreateMainWindow()
     local dmage_label = AceGUI:Create("Label2")
     dmage_label:SetText("输出")
     dmage_label:SetWidth(8*LENGTH_SCAL)
-    dmage_label:SetHeight(3*LENGTH_SCAL)
+    dmage_label:SetHeight(4*LENGTH_SCAL)
     self:ChangeFontSize(dmage_label,LABEL_SIZE)
     dmage_group:AddChild(dmage_label)
 
     self:insert_space(dmage_group)
 
     local dmage_data_label = AceGUI:Create("Label2")
-    dmage_data_label:SetText("15040")
+    dmage_data_label:SetText("0")
     dmage_data_label:SetWidth(8*LENGTH_SCAL)
     dmage_data_label:SetHeight(3*LENGTH_SCAL)
     self:ChangeFontSize(dmage_data_label,LABEL_SIZE)
@@ -107,14 +110,14 @@ function BGMainWindow:CreateMainWindow()
     local heal_label = AceGUI:Create("Label2")
     heal_label:SetText("治疗")
     heal_label:SetWidth(8*LENGTH_SCAL)
-    heal_label:SetHeight(3*LENGTH_SCAL)
+    heal_label:SetHeight(4*LENGTH_SCAL)
     self:ChangeFontSize(heal_label,LABEL_SIZE)
     heal_group:AddChild(heal_label)
 
     self:insert_space(heal_group)
 
     local heal_data_label = AceGUI:Create("Label2")
-    heal_data_label:SetText("15040")
+    heal_data_label:SetText("0")
     heal_data_label:SetWidth(8*LENGTH_SCAL)
     heal_data_label:SetHeight(3*LENGTH_SCAL)
     self:ChangeFontSize(heal_data_label,LABEL_SIZE)
@@ -175,9 +178,19 @@ function BGMainWindow:CreateMainWindow()
 end
 
 function BGMainWindow:UpdateMainWindow(data)
+    self.status_time_label:SetText(string.format("%02d:%02d",data["time_long"]/60,data["time_long"]%60) )
     self.self_kd_label:SetText(data["kd"])
     self.dmage_data_label:SetText(data["dmage"])
     self.heal_data_label:SetText(data["heal"])
     self.taken_dmage__data_label:SetText(data["taken_dmage"])
     self.get_heal__data_label:SetText(data["get_heal"])
+end
+
+function BGMainWindow:UpdateBattleState(in_battle)
+    if(in_battle)then
+        self.status_icon:SetText("战斗中")
+    else
+        self.status_icon:SetText("战斗停止")
+    end
+
 end
